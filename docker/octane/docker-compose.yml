@@ -1,0 +1,88 @@
+version: "3.7"
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./.docker/Dockerfile
+      args:
+        UID: ${DOCKER_UID}
+        USER: ${DOCKER_HOST_USER}
+    image: ${DOCKER_IMAGE_NAME}
+    environment:
+      ENABLE_CRON_JOB: ${DOCKER_ENABLE_CRON_JOB}
+      ENABLE_LARAVEL_WORKER: ${DOCKER_ENABLE_LARAVEL_WORKER}
+      ENABLE_LARAVEL_HORIZON: ${DOCKER_ENABLE_LARAVEL_HORIZON}
+      ENABLE_LARAVEL_WEBSOCKETS: ${DOCKER_ENABLE_LARAVEL_WEBSOCKETS}
+    container_name: ${DOCKER_IMAGE_NAME}-app
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - ${DOCKER_SERVER_EXPOSED_PORT}:8000
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      - ./:/app:delegated
+    networks:
+      - default
+    extra_hosts:
+      - "csm.strathmore.edu:172.17.0.1"
+  db:
+    image: mariadb:latest
+    container_name: ${DOCKER_IMAGE_NAME}-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - ${DOCKER_DB_EXPOSED_PORT}:${DB_PORT}
+    volumes:
+      - ./.docker/database:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/mysql
+    networks:
+      - default
+  redis:
+    image: "redis:alpine"
+    container_name: ${DOCKER_IMAGE_NAME}-redis
+    restart: unless-stopped
+    ports:
+      - ${DOCKER_REDIS_EXPOSED_PORT}:${REDIS_PORT}
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/var/lib/redis
+    networks:
+      - default
+  mailhog:
+    image: "mailhog/mailhog"
+    container_name: ${DOCKER_IMAGE_NAME}-mailhog
+    restart: unless-stopped
+    ports:
+      - ${DOCKER_MAILHOG_WEB_PORT}:8025
+    networks:
+      - default
+  websockets:
+    image: ${DOCKER_IMAGE_NAME}
+    container_name: ${DOCKER_IMAGE_NAME}-websockets
+    restart: unless-stopped
+    command: ["php","artisan","websockets:serve"]
+    ports:
+      - ${DOCKER_WEBSOCKETS_EXPOSED_PORT}:6001
+    volumes:
+      - ./:/app:delegated
+    networks:
+      - default
+
+volumes:
+  db-data:
+    external:
+      name: ${DOCKER_DB_VOLUME}
+  redis-data:
+    external:
+      name: ${DOCKER_DB_VOLUME}
+networks:
+  default:
+    external:
+      name: ${DOCKER_NETWORK_NAME}

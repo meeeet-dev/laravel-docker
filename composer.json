@@ -1,0 +1,61 @@
+{
+    "name": "meeeet-dev/laravel-docker",
+    "description": "Compose a Laravel Docker image for Production, using PHP 7 / 8, redis, mariadb and nginx",
+    "keywords": [
+        "docker",
+        "docker-compose",
+        "laravel",
+        "laravel-docker",
+        "laravel docker",
+        "Redis",
+        "mariadb",
+        "nginx",
+        "php"
+    ],
+    "homepage": "https://github.com/meeeet-dev/laravel-docker",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Meeeet Dev",
+            "email": "meeeet.dev@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0|^8.1|^8.2|^8.3",
+        "illuminate/support": ">=8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MeeeetDev\\LaravelDocker\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MeeeetDev\\LaravelDocker\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MeeeetDev\\LaravelDocker\\LaravelDockerServiceProvider"
+            ],
+            "aliases": {
+                "LaravelDocker": "MeeeetDev\\LaravelDocker\\LaravelDockerFacade"
+            }
+        }
+    }
+}
