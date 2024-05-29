@@ -25,8 +25,11 @@ php artisan docker:install yourimagename yournetworkname
 ```
  NB: After successfully publishing all the docker config, the command will ask you whether to uninstall itself since its work is done. If you have no further use of it, you can proceed to uninstall it.
 
-2. COPY all the .env variables published in a file named `.env.docker` to your current env file, just below `APP_URL`. Modify the variables as necessary.
-3. Done. Now you can run `docker-compose build app` to build your image, then `docker-compose up -d` to run your services.
+<!-- 2. COPY all the .env variables published in a file named `.env.docker` to your current env file, just below `APP_URL`. Modify the variables as necessary. -->
+
+2. Now you can run `docker-compose build app` to build your image, then `docker-compose up -d` to run your services.
+
+3. Done. Happy Coding!
 
 ### Testing
 
