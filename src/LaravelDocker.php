@@ -58,17 +58,24 @@ class LaravelDocker extends Command
         $network = $this->argument('network');
         $env = __DIR__ . "/../env/.env.docker";
         $dest = base_path(".env.docker");
-        $this->cmd("cp $env $dest");
+        copy($env, $dest);
         $this->replaceInFile($dest, ":image:", $image);
         $this->replaceInFile($dest, ":network:", $network);
 
         // Append the .env.docker to .env with a new line
         $this->info('Appending .env.docker to .env...');
-        $this->cmd("echo '' >> " . base_path('.env'));
-        $this->cmd("cat " . base_path(".env.docker") . " >> " . base_path('.env'));
+
+        // Get the contents of .env.docker
+        $content = file_get_contents($dest);
+
+        // Append the contents of .env.docker to .env
+        $fp = fopen(base_path('.env'), 'a');
+        fwrite($fp, "\n");
+        fwrite($fp, $content);
+        fclose($fp);
 
         // Remove .env.docker file after appending
-        $this->cmd("rm " . base_path(".env.docker"));
+        unlink($dest);
     }
     protected function publishConfig(string $phpVersion, bool $force = false)
     {
@@ -79,14 +86,74 @@ class LaravelDocker extends Command
         ]);
 
         //Configure the right version
-        $this->cmd("cp " . base_path("docker/$phpVersion/docker-compose.yml") . " " . base_path("."));
-        $this->cmd("cp " . base_path("docker/$phpVersion/.docker") . " " . base_path("."));
-        $this->cmd("rm docker");
-    }
+        copy(base_path("docker/$phpVersion/docker-compose.yml"), base_path("./docker-compose.yml"));
+        $this->recurseCopy(base_path("docker/$phpVersion/.docker"), base_path("."));
 
+        $dirname = 'docker';
+        // Remove Directory forcefully if it exists
+        if (is_dir($dirname)) {
+            $this->delTree($dirname);
+        }
+    }
     private function cleanUp(): void
     {
         $this->info('Cleaning up and removing LaravelDocker...');
         $this->cmd('composer remove meeeet-dev/laravel-docker --ignore-platform-reqs');
+    }
+    private function recurseCopy(
+        string $sourceDirectory,
+        string $destinationDirectory,
+        string $childFolder = ''
+    ): void {
+        $directory = opendir($sourceDirectory);
+
+        if (is_dir($destinationDirectory) === false) {
+            mkdir($destinationDirectory);
+        }
+
+        if ($childFolder !== '') {
+            if (is_dir("$destinationDirectory/$childFolder") === false) {
+                mkdir("$destinationDirectory/$childFolder");
+            }
+
+            while (($file = readdir($directory)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+
+                if (is_dir("$sourceDirectory/$file") === true) {
+                    $this->recurseCopy("$sourceDirectory/$file", "$destinationDirectory/$childFolder/$file");
+                } else {
+                    copy("$sourceDirectory/$file", "$destinationDirectory/$childFolder/$file");
+                }
+            }
+
+            closedir($directory);
+
+            return;
+        }
+
+        while (($file = readdir($directory)) !== false) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            if (is_dir("$sourceDirectory/$file") === true) {
+                $this->recurseCopy("$sourceDirectory/$file", "$destinationDirectory/$file");
+            }
+            else {
+                copy("$sourceDirectory/$file", "$destinationDirectory/$file");
+            }
+        }
+
+        closedir($directory);
+    }
+
+    private function delTree($dir) {
+        $files = array_diff(scandir($dir), array('.','..'));
+        foreach ($files as $file) {
+            (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
+        }
+        return rmdir($dir);
     }
 }
