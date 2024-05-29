@@ -7,3 +7,7 @@ All notable changes to `laravel-docker` will be documented in this file
 - Created Fork from `savannabits/dockavel`
 - Added newer PHP Versions in Package `(8.2, 8.3)`
 - Auto Append .env.docker into `.env` on `docker:install`
+
+## 1.0.1 - 2024-05-29
+
+- Fix Copy and Remove Command Crash for Windows Systems
