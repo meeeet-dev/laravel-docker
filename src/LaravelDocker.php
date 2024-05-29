@@ -64,8 +64,11 @@ class LaravelDocker extends Command
 
         // Append the .env.docker to .env with a new line
         $this->info('Appending .env.docker to .env...');
-        $this->cmd("echo '' >> .env");
-        $this->cmd("cat .env.docker >> .env");
+        $this->cmd("echo '' >> " . base_path('.env'));
+        $this->cmd("cat " . base_path(".env.docker") . " >> " . base_path('.env'));
+
+        // Remove .env.docker file after appending
+        $this->cmd("rm -rf " . base_path(".env.docker"));
     }
     protected function publishConfig(string $phpVersion, bool $force = false)
     {
