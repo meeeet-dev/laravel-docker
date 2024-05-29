@@ -29,7 +29,7 @@ php artisan docker:install yourimagename yournetworkname
 ### Testing
 
 ```bash
-docker-compose exec app composer test
+composer test
 ```
 
 ### Changelog
