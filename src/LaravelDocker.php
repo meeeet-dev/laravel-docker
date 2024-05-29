@@ -58,7 +58,7 @@ class LaravelDocker extends Command
         $network = $this->argument('network');
         $env = __DIR__ . "/../env/.env.docker";
         $dest = base_path(".env.docker");
-        $this->cmd("cp -rf $env $dest");
+        $this->cmd("cp $env $dest");
         $this->replaceInFile($dest, ":image:", $image);
         $this->replaceInFile($dest, ":network:", $network);
 
@@ -68,7 +68,7 @@ class LaravelDocker extends Command
         $this->cmd("cat " . base_path(".env.docker") . " >> " . base_path('.env'));
 
         // Remove .env.docker file after appending
-        $this->cmd("rm -rf " . base_path(".env.docker"));
+        $this->cmd("rm " . base_path(".env.docker"));
     }
     protected function publishConfig(string $phpVersion, bool $force = false)
     {
@@ -79,9 +79,9 @@ class LaravelDocker extends Command
         ]);
 
         //Configure the right version
-        $this->cmd("cp -rf " . base_path("docker/$phpVersion/docker-compose.yml") . " " . base_path("."));
-        $this->cmd("cp -rf " . base_path("docker/$phpVersion/.docker") . " " . base_path("."));
-        $this->cmd("rm -rf docker");
+        $this->cmd("cp " . base_path("docker/$phpVersion/docker-compose.yml") . " " . base_path("."));
+        $this->cmd("cp " . base_path("docker/$phpVersion/.docker") . " " . base_path("."));
+        $this->cmd("rm docker");
     }
 
     private function cleanUp(): void
