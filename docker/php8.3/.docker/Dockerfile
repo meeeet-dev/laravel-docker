@@ -44,8 +44,9 @@ RUN docker-php-ext-configure ldap \
         zip \
         xml
 # Install PECL extensions
-RUN pecl install memcached && \
-    docker-php-ext-enable memcached
+# Install memcached if needed
+# RUN pecl install memcached && \
+#     docker-php-ext-enable memcached
 
 RUN pecl install redis
 RUN docker-php-ext-enable redis

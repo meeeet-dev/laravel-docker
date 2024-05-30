@@ -3,9 +3,10 @@
 namespace MeeeetDev\LaravelDocker;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use Illuminate\Support\Facades\File;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
 
 class LaravelDocker extends Command
 {
@@ -86,12 +87,14 @@ class LaravelDocker extends Command
         ]);
 
         //Configure the right version
+        $this->info("Configuring $phpVersion docker Config...");
         copy(base_path("docker/$phpVersion/docker-compose.yml"), base_path("./docker-compose.yml"));
-        $this->recurseCopy(base_path("docker/$phpVersion/.docker"), base_path("."));
+        $this->copyDirectory(base_path("docker/$phpVersion/.docker"), base_path("./.docker"));
 
+        // Remove Directory if it exists
         $dirname = 'docker';
-        // Remove Directory forcefully if it exists
         if (is_dir($dirname)) {
+            $this->info("Removing $dirname directory...");
             $this->delTree($dirname);
         }
     }
@@ -100,53 +103,25 @@ class LaravelDocker extends Command
         $this->info('Cleaning up and removing LaravelDocker...');
         $this->cmd('composer remove meeeet-dev/laravel-docker --ignore-platform-reqs');
     }
-    private function recurseCopy(
-        string $sourceDirectory,
-        string $destinationDirectory,
-        string $childFolder = ''
-    ): void {
-        $directory = opendir($sourceDirectory);
+    private function copyDirectory($source, $destination)
+    {
+        $this->info("Copying $source to $destination...");
 
-        if (is_dir($destinationDirectory) === false) {
-            mkdir($destinationDirectory);
+        if (File::isDirectory($source)) {
+            // Create destination directory if it doesn't exist
+            if (!File::isDirectory($destination)) {
+                File::makeDirectory($destination, 0755, true);
+            }
+
+            // Recursively copy the directory
+            File::copyDirectory($source, $destination);
+
+            $this->info("Directory copied successfully.");
+            return true;
+        } else {
+            $this->info("Source directory does not exist.");
+            return false;
         }
-
-        if ($childFolder !== '') {
-            if (is_dir("$destinationDirectory/$childFolder") === false) {
-                mkdir("$destinationDirectory/$childFolder");
-            }
-
-            while (($file = readdir($directory)) !== false) {
-                if ($file === '.' || $file === '..') {
-                    continue;
-                }
-
-                if (is_dir("$sourceDirectory/$file") === true) {
-                    $this->recurseCopy("$sourceDirectory/$file", "$destinationDirectory/$childFolder/$file");
-                } else {
-                    copy("$sourceDirectory/$file", "$destinationDirectory/$childFolder/$file");
-                }
-            }
-
-            closedir($directory);
-
-            return;
-        }
-
-        while (($file = readdir($directory)) !== false) {
-            if ($file === '.' || $file === '..') {
-                continue;
-            }
-
-            if (is_dir("$sourceDirectory/$file") === true) {
-                $this->recurseCopy("$sourceDirectory/$file", "$destinationDirectory/$file");
-            }
-            else {
-                copy("$sourceDirectory/$file", "$destinationDirectory/$file");
-            }
-        }
-
-        closedir($directory);
     }
 
     private function delTree($dir) {

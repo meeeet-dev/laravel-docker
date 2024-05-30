@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-docker` will be documented in this file
 
+## 1.0.3 - 2024-05-29
+
+- Fix Copy and Remove Command Crash by using Laravel File System
+- Commened Memcached Installation by Default on Dockerfile
+- Dependency Update
+
 ## 1.0.2 - 2024-05-29
 
 - Fix Copy and Remove Command Crash by using PHP Default Methods

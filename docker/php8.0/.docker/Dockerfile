@@ -70,8 +70,9 @@ RUN docker-php-ext-configure gd \
         xml \
         pcntl
 # Install PECL extensions
-RUN pecl install memcached && \
-    docker-php-ext-enable memcached
+# Install memcached if needed
+# RUN pecl install memcached && \
+#     docker-php-ext-enable memcached
 
 RUN pecl install redis
 RUN docker-php-ext-enable redis
