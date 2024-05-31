@@ -1,4 +1,4 @@
-# Docker Package for Laravel projects
+# Initialize a Docker for Laravel projects
 
 #### Help you to create `docker-compose.yml` and `Dockerfile` as well as `Database Volume` and `Network`
 
@@ -25,13 +25,39 @@ composer require meeeet-dev/laravel-docker
     php artisan docker:install yourimagename yournetworkname
     ```
 
-    NB: After successfully publishing all the docker config, the command will ask you whether to uninstall itself since its work is done. If you have no further use of it, you can proceed to uninstall it.
+    - It will ask you to choose your php version and then it will ask you to create the bridge network and create the database volume for the database.
 
-    <!-- 2. COPY all the .env variables published in a file named `.env.docker` to your current env file, just below `APP_URL`. Modify the variables as necessary. -->
+    -  Note:
+        - *Do not delete the `docker-compose.yml` file and `.docker` folder.*
+        -  *After successfully publishing all the docker config, the command will ask you whether to uninstall itself since its work is done. If you have no further use of it, you can proceed to uninstall it.*
 
-2. Now you can run `docker-compose build app` to build your image, then `docker-compose up -d` to run your services.
+<!-- 2. COPY all the .env variables published in a file named `.env.docker` to your current env file, just below `APP_URL`. Modify the variables as necessary. -->
 
-3. Done. Happy Coding!
+2. Change Database and Docker Variables in `.env` according to your need.
+
+    ```bash
+    # Sample Database Variables
+    DB_CONNECTION=mysql
+    DB_HOST=db
+    DB_PORT=3306
+    DB_DATABASE=laravel
+    DB_USERNAME=secret
+    DB_PASSWORD=secret
+    ```
+
+3. Now you can run `docker-compose build app` to build your image
+
+4. Then `docker-compose up -d` to run your services.
+    - Do not forget to run following commands on installation to get started: 
+        `docker-compose exec app composer install`
+        `docker-compose exec app php artisan migrate` to run the migrations
+        `docker-compose exec app php artisan storage:link` to link storage
+        `docker-compose exec app npm install` to install npm packages
+        
+
+    *Note: run `docker-compose down` to stop your services*
+
+5. Done. Happy Coding!
 
 ### Testing
 

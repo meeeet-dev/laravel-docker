@@ -79,6 +79,24 @@ RUN docker-php-ext-enable redis
 
 RUN apk del build-dependencies
 
+# Install NVM, Node.js, and npm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash \
+    && export NVM_DIR="/root/.nvm" \
+    && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
+    && nvm install --lts \
+    && nvm use --lts \
+    && nvm alias default 'lts/*' \
+    && npm install -g npm
+
+# Add NVM initialization to .bashrc
+RUN echo "export NVM_DIR=\"/root/.nvm\"" >> /root/.bashrc \
+    && echo "[ -s \"$NVM_DIR/nvm.sh\" ] && \. \"$NVM_DIR/nvm.sh\"" >> /root/.bashrc \
+    && echo "export PATH=\"$NVM_DIR/versions/node/$(nvm current)/bin:\$PATH\"" >> /root/.bashrc
+
+# Ensure nvm is available to all users
+ENV NVM_DIR /root/.nvm
+ENV PATH $NVM_DIR/versions/node/$(nvm current)/bin:$PATH
+
 COPY .docker/config /tmp/config
 # Download trusted certs
 RUN mkdir -p /etc/ssl/certs && update-ca-certificates && \

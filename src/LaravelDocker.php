@@ -63,20 +63,24 @@ class LaravelDocker extends Command
         $this->replaceInFile($dest, ":image:", $image);
         $this->replaceInFile($dest, ":network:", $network);
 
-        // Append the .env.docker to .env with a new line
-        $this->info('Appending .env.docker to .env...');
+        $uid = env('DOCKER_UID', NULL);
 
-        // Get the contents of .env.docker
-        $content = file_get_contents($dest);
-
-        // Append the contents of .env.docker to .env
-        $fp = fopen(base_path('.env'), 'a');
-        fwrite($fp, "\n");
-        fwrite($fp, $content);
-        fclose($fp);
-
-        // Remove .env.docker file after appending
-        unlink($dest);
+        if (is_null($uid)) {
+            // Append the .env.docker to .env with a new line
+            $this->info('Appending .env.docker to .env...');
+    
+            // Get the contents of .env.docker
+            $content = file_get_contents($dest);
+    
+            // Append the contents of .env.docker to .env
+            $fp = fopen(base_path('.env'), 'a');
+            fwrite($fp, "\n");
+            fwrite($fp, $content);
+            fclose($fp);
+    
+            // Remove .env.docker file after appending
+            unlink($dest);
+        }
     }
     protected function publishConfig(string $phpVersion, bool $force = false)
     {

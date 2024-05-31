@@ -1,6 +1,6 @@
 {
     "name": "meeeet-dev/laravel-docker",
-    "description": "Compose a Laravel Docker image for Production, using PHP 7 / 8, redis, mariadb and nginx",
+    "description": "Compose a Laravel Docker image for Production, using PHP 7 / 8, redis, 'mysql/mariadb' and nginx",
     "keywords": [
         "docker",
         "docker-compose",
@@ -8,6 +8,7 @@
         "laravel-docker",
         "laravel docker",
         "Redis",
+        "mysql",
         "mariadb",
         "nginx",
         "php"
